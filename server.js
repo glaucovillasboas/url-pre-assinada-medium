@@ -33,6 +33,11 @@ app.get("/generate-presigned-get-urls", async (req, res) => {
     });
     const { Contents } = await s3Client.send(listObjectsCommand);
 
+    // Se não houver arquivos, retornamos um array vazio
+    if (!Contents) {
+      return res.json([]);
+    }
+
     // Geramos uma URL pré-assinada para cada arquivo
     const urls = await Promise.all(
       Contents.map(async (file) => {
