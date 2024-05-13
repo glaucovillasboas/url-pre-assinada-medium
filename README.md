@@ -19,6 +19,41 @@ Para instalar as dependências do projeto, basta rodar o comando:
 npm install
 ```
 
+## Variáveis de ambiente
+As variáveis de ambiente estão localizadas no arquivo `.env`.
+
+```
+AWS_ACCESS_KEY_ID= // Chavé pública do usuário
+AWS_SECRET_ACCESS_KEY= // Chave privada do usuário
+AWS_REGION= // Região da AWS em que o bucket está hospedado (ex.: us-east-2)
+AWS_BUCKET_NAME= //Nome do bucket
+```
+
+Antes de rodar o projeto, é necessário preencher os dados relativo ao usuário e bucket na AWS que farão a gestão dos arquivos.
+
+Caso você não tenha uma conta na AWS, será necessário seguir as seguintes instruções:
+
+https://docs.aws.amazon.com/pt_br/streams/latest/dev/setting-up.html
+
+E para criar um bucket privado, voce pode seguir os passos em:
+
+https://docs.aws.amazon.com/pt_br/AmazonS3/latest/userguide/creating-bucket.html
+
+Para obter `AWS_ACCESS_KEY_ID` e `AWS_SECRET_ACCESS_KEY`, acesse a página de usuários na IAM da sua conta AWS:
+
+https://us-east-1.console.aws.amazon.com/iam/home?region=us-east-2#/users
+
+Selecione o usuário , e clique em **"Create access key"**.
+
+![image](https://github.com/glaucovillasboas/url-pre-assinada-medium/assets/27960416/6708a7d8-e0d9-446e-b066-3090b86d2044)
+
+O caso de uso para o nosso exemplo será o **"Application running outside AWS"**, após selecionar esta opção clique em **"Next"**, e em seguida clique em **"Create access key"**.
+
+![image](https://github.com/glaucovillasboas/url-pre-assinada-medium/assets/27960416/0cded4cb-83d6-4b3d-9ca3-f12885841032)
+
+Após isso, você verá dois valores: **"Access key"** e **"Secret access key"**. O primeiro, é o valor que deve ser utilizado na variável `AWS_ACCESS_KEY_ID`, e o segundo é o valor de `AWS_SECRET_ACCESS_KEY`.
+
+
 ## Rodando a aplicação
 Para rodar a aplicação, rode o comando:
 ```bash
