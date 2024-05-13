@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>URL pré-assinadas</title>
+</head>
+<body>
+    <h1>Exemplo de uso de URLs pré-assinada AWS S3</h1>
+    
+    <h2>Envie imagens através de URLs pré-assinadas de upload</h2>
+    <form id="uploadForm" method="post" enctype="multipart/form-data">
+        <input id="fileInput" type="file" name="file" accept="image/jpeg, image/jpg, image/png, image/webp" required>
+        <input type="button" value="Upload File" onclick="uploadFile()">
+        <span id="uploadLoadingLabel" style="display: none;"> Enviando... </span>
+    </form>
+
+    <h2>Liste as imagens através de URLs pré-assindas de download</h2>
+    <button onclick="listFiles()">Atualizar lista de imagens</button>
+    <span id="downloadLoadingLabel" style="display: none;"> Carregando... </span>
+    <div id="fileList"></div>
+
+    <script>
+        function listFiles() {
+            // Exibe o label de carregamento
+            const loadingLabel = document.getElementById('downloadLoadingLabel');
+            loadingLabel.style.display = 'block';
+
+            // Solicita a lista de URLs pré-assinadas das imagens
+            fetch('/generate-presigned-get-urls')
+                .then(response => response.json())
+                .then(urls => {
+                    // Limpa a lista de imagens do DOM
+                    const list = document.getElementById('fileList');
+                    list.innerHTML = '';
+
+                    // Cria um elemento <img> para cada URL pré-assinada e adiciona na lista
+                    urls.forEach(url => {
+                        const img = document.createElement('img');
+                        img.src = url;
+                        img.style.width = '200px';
+                        img.style.height = '200px';
+                        list.appendChild(img);
+                    });
+                })
+                .catch(error => {
+                    alert('Error listar imagens.');
+                    console.error('Error ao listar imagens:', error)
+                })
+                // Esconde o label de carregamento
+                .finally(() => loadingLabel.style.display = 'none');
+        }
+
+        function uploadFile() {
+            // Verifica se há algum arquivo selecionado
+            const fileInput = document.getElementById('fileInput');
+            if (!fileInput.files.length) {
+                return alert('Selecione alguma imagem.');
+            }
+            const file = fileInput.files[0];
+
+            // Exibe o label de carregamento
+            const loadingLabel = document.getElementById('uploadLoadingLabel');
+            loadingLabel.style.display = 'block';
+
+            // Solicita a URL pré-assinada para upload
+            fetch('/generate-presigned-post-url')
+                .then(response => response.json())
+                .then(data => {
+                    // Cria um objeto FormData e adiciona os campos recebidos pelo back end
+                    const formData = new FormData();
+                    Object.entries(data.fields).forEach(([key, value]) => {
+                        formData.append(key, value);
+                    });
+                    // Adiciona o arquivo no FormData, "file" é o nome do campo esperado pela AWS
+                    formData.append('file', file);
+
+                    // Envia o arquivo utilizando a URL pré-assinda
+                    return fetch(data.url, {
+                        mode: 'no-cors',
+                        method: 'POST',
+                        body: formData
+                    });
+                })
+                .then(uploadResponse => {
+                    // Atualiza a lista de imagens
+                    listFiles(); 
+                })
+                .catch(error => {
+                    console.error('Error ao fazer upload da imagem:', error);
+                    alert('Error ao fazer upload da imagem.');
+                })
+                // Esconde o label de carregamento
+                .finally(() => loadingLabel.style.display = 'none');
+        }
+
+        // Atualiza a lista de imagens ao carregar a página
+        window.onload = listFiles;
+    </script>
+</body>
+</html>
